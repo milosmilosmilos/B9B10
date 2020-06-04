@@ -1,0 +1,113 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Data.OleDb;
+
+namespace B9
+{
+    public partial class TipAntikviteta : Form
+    {
+        public TipAntikviteta()
+        {
+            InitializeComponent();
+        }
+
+        private void Unesi_Click(object sender, EventArgs e)
+        {
+            int ind = 0;
+            OleDbConnection con = new OleDbConnection();
+            con.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0; Data Source=B9B10.accdb";
+            OleDbCommand cmd = new OleDbCommand();
+            cmd.Connection = con;
+            cmd.CommandText = string.Format("INSERT INTO Tip_Antikviteta VALUES({0},'{1}')", Convert.ToInt32(TipAntikvitetaID.Text) , Tip.Text);
+            OleDbCommand cmd2 = new OleDbCommand();
+            cmd2.Connection = con;
+            cmd2.CommandText = string.Format("SELECT * FROM Tip_Antikviteta WHERE TipAntikvitetaID={0}", Convert.ToInt32(TipAntikvitetaID.Text));
+            try
+            {
+                con.Open();
+                using (OleDbDataReader reader = cmd2.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        if(Convert.ToInt32(reader["TipAntikvitetaID"]) == Convert.ToInt32(TipAntikvitetaID.Text))
+                        {
+                            Tip.Text = reader["Tip"].ToString();
+                            ind = 1;
+                            MessageBox.Show("Tip Antikviteta postoji u bazi!");
+                            break;
+                        }
+                    }
+                }
+                if (ind == 0)
+                {
+                    cmd.ExecuteNonQuery();
+                    MessageBox.Show("Tip Antikviteta dodat u bazu!");
+                    Tip.Clear();
+                    TipAntikvitetaID.Clear();
+                }
+                
+                con.Close();
+                
+            }
+            catch (Exception greska)
+            {
+                MessageBox.Show(greska.ToString());
+            }
+        }
+
+        private void Obrisi_Click(object sender, EventArgs e)
+        {
+            OleDbConnection con = new OleDbConnection();
+            con.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0; Data Source=B9B10.accdb";
+            OleDbCommand cmd = new OleDbCommand();
+            cmd.Connection = con;
+            cmd.CommandText = string.Format("DELETE FROM Tip_Antikviteta WHERE TipAntikvitetaID={0}", Convert.ToInt32(TipAntikvitetaID.Text));
+            try
+            {
+                con.Open();
+                cmd.ExecuteNonQuery();
+                con.Close();
+                MessageBox.Show("Tip izbrisan iz baze!");
+                TipAntikvitetaID.Clear();
+            }
+            catch (Exception greska)
+            {
+                MessageBox.Show(greska.ToString());
+            }
+        }
+
+        private void Izmeni_Click(object sender, EventArgs e)
+        {
+            OleDbConnection con = new OleDbConnection();
+            con.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0; Data Source=B9B10.accdb";
+            OleDbCommand cmd = new OleDbCommand();
+            cmd.Connection = con;
+            cmd.CommandText = string.Format("UPDATE Tip_Antikviteta SET Tip='{0}' WHERE TipAntikvitetaID={1}",Tip.Text, Convert.ToInt32(TipAntikvitetaID.Text));
+            try
+            {
+                con.Open();
+                cmd.ExecuteNonQuery();
+                con.Close();
+                MessageBox.Show("Tip izmenjen u bazi!");
+                TipAntikvitetaID.Clear();
+                Tip.Clear();
+            }
+            catch (Exception greska)
+            {
+                MessageBox.Show(greska.ToString());
+            }
+        }
+
+        private void TipAntikviteta_Load(object sender, EventArgs e)
+        {
+
+        }
+    }
+}
